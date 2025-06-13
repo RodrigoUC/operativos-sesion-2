@@ -1,16 +1,9 @@
 from flask import Flask, request
+import requests
 import os
-import mysql.connector
 
 app = Flask(__name__)
-
-def get_db_connection():
-    return mysql.connector.connect(
-        host=os.getenv("DB_HOST", "mariadb"),
-        user=os.getenv("DB_USER", "root"),
-        password=os.getenv("DB_PASSWORD", "example"),
-        database=os.getenv("DB_NAME", "testdb")
-    )
+BACKEND_URL = os.getenv("BACKEND_URL", "http://backend:5001")
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -19,31 +12,26 @@ def index():
         name = request.form.get("name")
         comment = request.form.get("comment")
         try:
-            conn = get_db_connection()
-            cursor = conn.cursor()
-            cursor.execute("INSERT INTO comments (name, comment) VALUES (%s, %s)", (name, comment))
-            conn.commit()
-            cursor.close()
-            conn.close()
-            message = "Comentario guardado exitosamente."
+            response = requests.post(f"{BACKEND_URL}/comments", json={"name": name, "comment": comment})
+            if response.status_code == 200:
+                message = "Comentario enviado exitosamente."
+            else:
+                message = f"Error desde backend: {response.text}"
         except Exception as e:
-            message = f"Error al guardar comentario: {str(e)}"
+            message = f"Error al contactar backend: {e}"
 
-    # Fetch comments
+    # Obtener comentarios
     comments = []
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT name, comment FROM comments ORDER BY id DESC")
-        comments = cursor.fetchall()
-        cursor.close()
-        conn.close()
+        response = requests.get(f"{BACKEND_URL}/comments")
+        if response.status_code == 200:
+            comments = response.json()
     except:
         comments = []
 
-    comment_list = "<ul>" + "".join(f"<li><b>{n}</b>: {c}</li>" for n, c in comments) + "</ul>"
+    comment_list = "<ul>" + "".join(f"<li><b>{c['name']}</b>: {c['comment']}</li>" for c in comments) + "</ul>"
 
-    return '''
+    return f'''
     <html>
     <head><title>Comentarios</title></head>
     <body>
@@ -55,10 +43,10 @@ def index():
         </form>
         <p>{message}</p>
         <h2>Comentarios Previos</h2>
-        {comments}
+        {comment_list}
     </body>
     </html>
-    '''.format(message=message, comments=comment_list)
+    '''
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)

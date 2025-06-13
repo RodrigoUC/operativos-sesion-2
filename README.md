@@ -13,6 +13,11 @@
   - Exponerse en el puerto 5001
 - El frontend debe obtener datos desde el backend
 
+> NOTA: En el docker-compose.yaml, agreguen la siguiente línea para el servicio de MariaDB:
+
+`volumes:
+      - ./init:/docker-entrypoint-initdb.d`
+
 ## Archivos proporcionados
 - `frontend.py`
 - `requirements.txt` del frontend
