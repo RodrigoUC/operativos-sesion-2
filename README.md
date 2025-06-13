@@ -15,10 +15,8 @@
 
 > NOTA: En el docker-compose.yaml, agreguen la siguiente línea para el servicio de MariaDB:
 
-```
 volumes:
       - ./init:/docker-entrypoint-initdb.d
-```
 
 ## Archivos proporcionados
 - `frontend.py`
