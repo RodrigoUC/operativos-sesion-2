@@ -4,7 +4,7 @@
 > A partir del ejercicio de la sesión anterior, ahora deberán construir la aplicación completa, agregando un backend y conectándolo a la base de datos
 
 ## Objetivos
-- Crear un `docker-compose.yml` que incluya:
+- Crear un `docker-compose.yaml` que incluya:
   - Frontend (`app.py`) - a partir de un Dockerfile
   - Backend (`backend.py`) - a partir de un Dockerfile
   - MariaDB (pueden buscar la imagen desde Dockerhub)
